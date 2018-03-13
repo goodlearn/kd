@@ -12,7 +12,8 @@
 		a.update_by AS "updateBy.id",
 		a.update_date AS "updateDate",
 		a.remarks AS "remarks",
-		a.del_flag AS "delFlag"
+		a.del_flag AS "delFlag",
+		a.idcard_img AS "idcardImg"
 	</sql>
 	
 	<sql id="sysWxUserJoins">
@@ -110,7 +111,8 @@
 			update_by,
 			update_date,
 			remarks,
-			del_flag
+			del_flag,
+			idcard_img
 		) VALUES (
 			#{id},
 			#{idCard},
@@ -121,7 +123,8 @@
 			#{updateBy.id},
 			#{updateDate},
 			#{remarks},
-			#{delFlag}
+			#{delFlag},
+			#{idcardImg}
 		)
 	</insert>
 	
@@ -132,7 +135,8 @@
 			phone = #{phone},
 			update_by = #{updateBy.id},
 			update_date = #{updateDate},
-			remarks = #{remarks}
+			remarks = #{remarks},
+			idcard_img = #{idcardImg}
 		WHERE id = #{id}
 	</update>
 	

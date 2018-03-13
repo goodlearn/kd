@@ -1,7 +1,5 @@
 package com.thinkgem.jeesite.common.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 

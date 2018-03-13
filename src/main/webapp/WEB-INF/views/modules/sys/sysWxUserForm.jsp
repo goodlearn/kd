@@ -30,7 +30,7 @@
 		<li><a href="${ctx}/sys/sysWxUser/">微信用户表列表</a></li>
 		<li class="active"><a href="${ctx}/sys/sysWxUser/form?id=${sysWxUser.id}">微信用户表<shiro:hasPermission name="sys:sysWxUser:edit">${not empty sysWxUser.id?'修改':'添加'}</shiro:hasPermission><shiro:lacksPermission name="sys:sysWxUser:edit">查看</shiro:lacksPermission></a></li>
 	</ul><br/>
-	<form:form id="inputForm" modelAttribute="sysWxUser" action="${ctx}/sys/sysWxUser/save" method="post" class="form-horizontal">
+	<form:form id="inputForm" modelAttribute="sysWxUser" action="${ctx}/sys/sysWxUser/update" method="post" class="form-horizontal">
 		<form:hidden path="id"/>
 		<sys:message content="${message}"/>		
 		<div class="control-group">
@@ -51,6 +51,13 @@
 			<div class="controls">
 				<form:input path="phone" htmlEscape="false" maxlength="200" class="input-xlarge required"/>
 				<span class="help-inline"><font color="red">*</font> </span>
+			</div>
+		</div>
+		<div class="control-group">
+			<label class="control-label">身份信息：</label>
+			<div class="controls">
+				<form:hidden id="idcardImg" path="idcardImg" htmlEscape="false" class="input-xlarge"/>
+				<sys:ckfinder input="idcardImg" type="files" uploadPath="/sys/sysWxUser" selectMultiple="true"/>
 			</div>
 		</div>
 		<div class="control-group">

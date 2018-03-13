@@ -3,6 +3,8 @@
  */
 package com.thinkgem.jeesite.modules.sys.entity;
 
+import java.sql.Blob;
+
 import org.hibernate.validator.constraints.Length;
 
 import com.thinkgem.jeesite.common.persistence.DataEntity;
@@ -19,10 +21,24 @@ public class SysWxUser extends DataEntity<SysWxUser> {
 	private String idCard;		// 身份证号
 	private String name;		// 姓名
 	private String phone;		// 手机
+	private String idcardImg;//图片信息
 	
 	public SysWxUser() {
 		super();
 	}
+
+	@Length(min=0, max=255, message="姓名长度必须介于 0 和 255之间")
+	public String getIdcardImg() {
+		return idcardImg;
+	}
+
+
+
+	public void setIdcardImg(String idcardImg) {
+		this.idcardImg = idcardImg;
+	}
+
+
 
 	public SysWxUser(String id){
 		super(id);

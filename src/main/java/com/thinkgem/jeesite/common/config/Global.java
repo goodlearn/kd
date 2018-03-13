@@ -1,6 +1,3 @@
-/**
- * Copyright &copy; 2012-2016 <a href="https://github.com/thinkgem/jeesite">JeeSite</a> All rights reserved.
- */
 package com.thinkgem.jeesite.common.config;
 
 import java.io.File;
@@ -58,6 +55,13 @@ public class Global {
 	 * 上传文件基础虚拟路径
 	 */
 	public static final String USERFILES_BASE_URL = "/userfiles/";
+	
+	/**
+	 * 存放用户身份信息路径
+	 */
+	public static final String USER_ID_CARD = "/userfiles/1/files/sys/sysWxUser/2018/03";
+	
+	public static final String TEST_OPEN_ID = null;
 	
 	public final static String GET_METHOD = "GET";
 	public final static String POST_METHOD = "POST";

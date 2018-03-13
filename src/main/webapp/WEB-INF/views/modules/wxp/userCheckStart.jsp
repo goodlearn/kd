@@ -12,6 +12,7 @@
 	<script src="${ctxStatic}/wx/wxjs/common.js" type="text/javascript"></script>
 	<script src="${ctxStatic}/wx/wxjs/notice.js" type="text/javascript"></script>
 	<script src="${ctxStatic}/wx/wxjs/regexp.js" type="text/javascript"></script>
+	<script src="${ctxStatic}/wx/wxjs/jweixin-1.2.0.js" type="text/javascript"></script>
 	<style type="text/css">
 		.content{
 			overflow: hidden;
@@ -94,11 +95,66 @@
 		#oldPhoneDiv{
 			display: none;
 		}
+		
+		.userIdImgUpload{
+			width: 90%;
+			margin: 0 auto 20px;
+			overflow: hidden;
+		}
+		.userIdImgUpload .userIdImgCont{
+			width: 100%;
+			overflow: hidden;
+			border-radius: 8px;
+			border: 1px solid #e1e1e1;
+			background: #fff;
+		}
+		.userIdImgUpload .userIdImgCont img{
+			width: 100%;
+			display: block;
+			margin: 0 auto;
+		}
+		.userIdImgUpload .userIdImgCont .userIdImgUploadDesc{
+			margin: 0px;
+			line-height: 30px;
+			font-size: 14px;
+			color: #999999;
+			font-weight: bold;
+			text-align: center;
+		}
+
+		.exampleImg{
+			text-align: center;
+			font-size: 14px;
+			color: blue;
+			margin-bottom: 10px;
+			text-decoration: underline;
+		}
+
+		.userUploadDesc{
+			width: 90%;
+			font-size: 14px; 
+			color: #999999;
+			margin: 0 auto 20px;
+		}
+		
+		.imageCover{
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			width: 100%;
+			height: 100%;
+			background: rgba(0,0,0,0.8);
+			display: none;
+		}
 
 	</style>
 </head>
 <body>
 	<div class="content">
+	<input id="appId" type="hidden" value="${appId}"/>
+	<input id="timestamp" type="hidden" value="${timestamp}" />
+    <input id="noncestr" type="hidden" value="${nonceStr}" />
+    <input id="signature" type="hidden" value="${signature}" />
 	<div class="userCheckCont">
 		<div class="userInfoCont">
 			<div class="userInfoIcon">
@@ -149,6 +205,19 @@
 				</div>
 			</form>
 
+			<div class="userIdImgUpload">
+				<div class="userIdImgCont" id="userIdImgPositive">
+					<img src="uploadfile/defaultimage.jpg" alt="图片加载中...">
+					<p class="userIdImgUploadDesc">点击上传手持身份证照片</p>
+				</div>
+			</div>
+
+			<div class="exampleImg">查看示例图片</div>
+
+			<div class="userUploadDesc">
+				请确保上传的个人证明均为有效证件，提交后我们将在3个工作日之内进行审核，并在公众号内通知审核结果，请耐心等待。
+			</div>
+
 			<div id = "userRegSubmitBtn" class="submitBtn userRegSubmitBtn">确认提交</div>
 			<div class="backBtn">点我返回</div>
 		</div>
@@ -161,9 +230,120 @@
 		var pageContextVal = $("#PageContext").val();
 		var wxCodeVal = $("#wxCode").val();
 		var windowW = $(window).width();
+		var windowH = $(window).height();
 		if (windowW > 600) {
 			windowW = 600;
 		}
+		
+		
+		var topH = $(".userCheckCont").height();
+		$(".solidCont").css({"height":(windowH - topH) + "px"});
+		var topH = $(".userCheckCont").height();
+		$(".userIdImgCont img").attr("src","uploa1dfile/defaulti1mage.jpg");
+
+		// 样例图片展示  501*377
+		var imageH = windowW * 377 / 501; 
+		$(".coverCont").css({"margin-top":(windowH - imageH)/2 + "px"});
+		$(".exampleImg").click(function(){
+			$(".imageCover").fadeIn();
+		});
+
+		$(".imageCover").click(function(){
+			$(".imageCover").fadeOut();
+		});
+
+		// 用户上传图片函数
+		// JSSDK
+		var appId = $("#appId").val();
+		var timestamp = $("#timestamp").val();//时间戳
+        var nonceStr = $("#noncestr").val();//随机串
+        var signature = $("#signature").val();//签名
+        wx.config({
+            debug : true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId : appId, // 必填，公众号的唯一标识
+            timestamp : timestamp, // 必填，生成签名的时间戳
+            nonceStr : nonceStr, // 必填，生成签名的随机串
+            signature : signature,// 必填，签名，见附录1
+            jsApiList : [ 
+            	'checkJsApi',
+		        'onMenuShareTimeline',
+		        'onMenuShareAppMessage',
+		        'onMenuShareQQ',
+		        'onMenuShareWeibo',
+		        'hideMenuItems',
+		        'showMenuItems',
+		        'hideAllNonBaseMenuItem',
+		        'showAllNonBaseMenuItem',
+		        'translateVoice',
+		        'startRecord',
+		        'stopRecord',
+		        'onRecordEnd',
+		        'playVoice',
+		        'pauseVoice',
+		        'stopVoice',
+		        'uploadVoice',
+		        'downloadVoice',
+		        'chooseImage',
+		        'previewImage',
+		        'uploadImage',
+		        'downloadImage',
+		        'getNetworkType',
+		        'openLocation',
+		        'getLocation',
+		        'hideOptionMenu',
+		        'showOptionMenu',
+		        'closeWindow',
+		        'scanQRCode',
+		        'chooseWXPay',
+		        'openProductSpecificView',
+		        'addCard',
+		        'chooseCard',
+		        'openCard'
+            ]
+        // 必填，需要使用的JS接口列表，所有JS接口列表见附录2
+        });
+
+        wx.ready(function() {  
+	        wx.checkJsApi({  
+	            jsApiList : ['chooseImage','previewImage','uploadImage','downloadImage'],  
+	            success : function(res) {  
+
+	            }  
+	        });  
+
+	        //扫描二维码  
+	        document.querySelector('#userIdImgPositive').onclick = function() {  
+	            wx.chooseImage({
+					count: 1, // 默认9
+					sizeType: ['compressed'], // 可以指定是原图还是压缩图，默认二者都有
+					sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
+					success: function (res) {
+						var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
+						$.ajax({
+						    type: 'POST',
+						    url: 'upIdCard',
+						    data: localIds,
+						    success:function(data){
+						    	alert("图片上传成功！");  // 需要返回一个图片连接
+						    	var imgaddr = data;
+						    	$(".userIdImgCont image").attr("src",imgaddr);
+						    },
+						    error:function(){
+						    	
+						    }
+						    
+						});
+					}
+				});
+	        };//end_document_scanQRCode  
+	        
+	          
+	    });//end_ready 
+		
+		
+		
+		
+		
 		$(".solidCont").css({"margin-left":0+"px"});
 
 		$(".userRegBtn").click(function(){

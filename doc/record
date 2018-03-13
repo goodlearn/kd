@@ -8,6 +8,8 @@ ALTER TABLE sys_express ADD COLUMN msg_state varchar(100) default '0'
 ALTER TABLE sys_express ADD COLUMN company varchar(100) default '0'
 ALTER TABLE sys_wx_info ADD CONSTRAINT wxinfo_idcard UNIQUE(id_card)
 
+create database kd default character set utf8mb4 collate utf8mb4_unicode_ci;
+
 CREATE TABLE `sys_wx_user_check`(
 
   `id` VARCHAR(64) NOT NULL COMMENT '编号',

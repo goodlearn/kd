@@ -19,6 +19,14 @@ public class BasePathUtils {
 			basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+contextPath+"/";
 			return basePath;
 		}
+		
+		public static String getBasePathNoServer(HttpServletRequest request,boolean isServer) {
+			if(isServer) {
+				return request.getScheme()+"://"+request.getServerName();
+			}else {
+				return request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort();
+			}
+		}
 	
 		public static String getRealPath(HttpServletRequest request, String path) {
 			ServletContext context = request.getSession().getServletContext();
