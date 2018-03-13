@@ -92,10 +92,11 @@
 			font-weight: bolder;
 		}
 
-		#oldPhoneDiv{
+		#oldPhone{
 			display: none;
 		}
-		
+
+		/* userIdImg css */
 		.userIdImgUpload{
 			width: 90%;
 			margin: 0 auto 20px;
@@ -151,10 +152,12 @@
 </head>
 <body>
 	<div class="content">
-	<input id="appId" type="hidden" value="${appId}"/>
-	<input id="timestamp" type="hidden" value="${timestamp}" />
-    <input id="noncestr" type="hidden" value="${nonceStr}" />
-    <input id="signature" type="hidden" value="${signature}" />
+    
+    <input id="timestamp" type="hidden" value="${timestamp}" />
+	<input id="noncestr" type="hidden" value="${nonceStr}" />
+	<input id="signature" type="hidden" value="${signature}" />
+	<input id="appId" type="hidden" value="${appId}" />
+	
 	<div class="userCheckCont">
 		<div class="userInfoCont">
 			<div class="userInfoIcon">
@@ -222,7 +225,12 @@
 			<div class="backBtn">点我返回</div>
 		</div>
 	</div>
-
+	
+	<div class="imageCover">
+		<div class="coverCont">
+			<img src="uploadfile/useridimage.jpg" width="100%">
+		</div>
+	</div>
 </div>
 
 <script type="text/javascript">
@@ -235,11 +243,9 @@
 			windowW = 600;
 		}
 		
-		
-		var topH = $(".userCheckCont").height();
-		$(".solidCont").css({"height":(windowH - topH) + "px"});
-		var topH = $(".userCheckCont").height();
-		$(".userIdImgCont img").attr("src","uploa1dfile/defaulti1mage.jpg");
+		// cover
+		var contentH = $(".content").height();
+		$(".imageCover").css({"height":contentH + "px"});
 
 		// 样例图片展示  501*377
 		var imageH = windowW * 377 / 501; 
@@ -254,10 +260,10 @@
 
 		// 用户上传图片函数
 		// JSSDK
-		var appId = $("#appId").val();
 		var timestamp = $("#timestamp").val();//时间戳
         var nonceStr = $("#noncestr").val();//随机串
         var signature = $("#signature").val();//签名
+        var appId = $("#appId").val();//签名
         wx.config({
             debug : true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
             appId : appId, // 必填，公众号的唯一标识
@@ -319,23 +325,41 @@
 					sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
 					success: function (res) {
 						var localIds = res.localIds; // 返回选定照片的本地ID列表，localId可以作为img标签的src属性显示图片
-						$.ajax({
-						    type: 'POST',
-						    url: 'upIdCard',
-						    data: localIds,
-						    success:function(data){
-						    	alert("图片上传成功！");  // 需要返回一个图片连接
-						    	var imgaddr = data;
-						    	$(".userIdImgCont image").attr("src",imgaddr);
-						    },
-						    error:function(){
-						    	
-						    }
-						    
+
+						wx.uploadImage({
+							localId: localIds[0], // 需要上传的图片的本地ID，由chooseImage接口获得
+							isShowProgressTips: 1, // 默认为1，显示进度提示
+							success: function (res) {
+								var serverId = res.serverId; // 返回图片的服务器端ID
+								$.ajax({
+								    type: 'POST',
+								    url: 'upIdCard',
+								    data: serverId,
+								    success:function(data){
+								    	var prompt = "操作提示";
+								    	var code = data.code;
+								    	var message = data.message;
+								    	if(code == "1"){
+								    		rzAlert(prompt,message);
+								    		alert("图片上传成功！");  // 需要返回一个图片连接
+									    	var imgaddr = data;
+									    	$("userIdImgCont image").attr("src",serverId);
+								    	}else{
+								    		rzAlert(prompt,message);
+								    	}
+								    },
+								    error:function(){
+								    	
+								    }
+								    
+								});
+							}
 						});
+
+						
 					}
 				});
-	        };//end_document_scanQRCode  
+	        };//uploadimage  
 	        
 	          
 	    });//end_ready 

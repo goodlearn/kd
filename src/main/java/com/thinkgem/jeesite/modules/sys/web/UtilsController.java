@@ -30,6 +30,7 @@ import com.thinkgem.jeesite.common.config.WxGlobal;
 import com.thinkgem.jeesite.common.entity.PhoneMsgCache;
 import com.thinkgem.jeesite.common.entity.Qrecord;
 import com.thinkgem.jeesite.common.entity.WxCodeCache;
+import com.thinkgem.jeesite.common.utils.BasePathUtils;
 import com.thinkgem.jeesite.common.utils.CacheUtils;
 import com.thinkgem.jeesite.common.utils.CasUtils;
 import com.thinkgem.jeesite.common.utils.DeviceUtils;
@@ -44,7 +45,6 @@ import com.thinkgem.jeesite.modules.sys.entity.SysWxUserCheck;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.WxService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
-import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import com.thinkgem.jeesite.modules.sys.view.JsonSysExpress;
 import com.alibaba.fastjson.JSONObject;
 
@@ -309,7 +309,7 @@ public class UtilsController extends BaseController {
 	 * 如果微信号查询到，但是没有激活，返回未审核页面
 	 * 如果用户已注册，也已经激活，返回空值
 	 */
-	private String validateRegAndActiveByOpenId(String openId,Model model) {
+	private String validateRegAndActiveByOpenId(String openId,HttpServletRequest request, HttpServletResponse response,Model model) {
 		
 		if(null == openId) {
 			model.addAttribute("message",ERR_OPEN_ID_NOT_GET);
@@ -325,6 +325,17 @@ public class UtilsController extends BaseController {
 		
 		SysWxUserCheck sysWxUserCheck = wxService.findByOpenId(openId);
 		if(null == sysWxUserCheck) {
+			//获取jsApiTicket
+			Map<String, String> map = WxJsSkdUtils.getJsApiSign(request, response);
+			String retCode = map.get("code");
+			if("0".equals(retCode)) {
+				model.addAttribute("appId",WxGlobal.getAppId());
+				model.addAttribute("timestamp",map.get("timestamp"));
+				model.addAttribute("nonceStr",map.get("nonceStr"));
+				model.addAttribute("signature",map.get("signature"));
+			}else {
+				logger.info("jsApiTicket is null");
+			}
 			model.addAttribute("message",ERR_USER_ID_NULL);
 			model.addAttribute("errUrl",WX_USER_CHECK_START);
 			model.addAttribute("wxCode",CacheUtils.getCodeByOpenId(openId));
@@ -371,7 +382,7 @@ public class UtilsController extends BaseController {
 		}
 		//是否已经注册并且激活
 	    String openId = (String)model.asMap().get("openId");
-		String isRegAndActive = validateRegAndActiveByOpenId(openId,model);
+		String isRegAndActive = validateRegAndActiveByOpenId(openId,request,response,model);
 		if(null!=isRegAndActive) {
 			//未注册或者未激活 跳转到指定页面
 			return isRegAndActive;
@@ -403,7 +414,7 @@ public class UtilsController extends BaseController {
 			}
 			//是否已经注册并且激活
 		    String openId = (String)model.asMap().get("openId");
-			String isRegAndActive = validateRegAndActiveByOpenId(openId,model);
+			String isRegAndActive = validateRegAndActiveByOpenId(openId,request,response,model);
 			if(null!=isRegAndActive) {
 				//未注册或者未激活 跳转到指定页面
 				return isRegAndActive;
@@ -457,7 +468,7 @@ public class UtilsController extends BaseController {
 		}
 		//是否已经注册并且激活
 	    String openId = (String)model.asMap().get("openId");
-		String isRegAndActive = validateRegAndActiveByOpenId(openId,model);
+		String isRegAndActive = validateRegAndActiveByOpenId(openId,request,response,model);
 		if(null!=isRegAndActive) {
 			//未注册或者未激活 跳转到指定页面
 			return isRegAndActive;
@@ -488,7 +499,7 @@ public class UtilsController extends BaseController {
 		}
 		//是否已经注册并且激活
 	    String openId = (String)model.asMap().get("openId");
-		String isRegAndActive = validateRegAndActiveByOpenId(openId,model);
+		String isRegAndActive = validateRegAndActiveByOpenId(openId,request,response,model);
 		if(null!=isRegAndActive) {
 			//未注册或者未激活 跳转到指定页面
 			return isRegAndActive;
@@ -511,7 +522,7 @@ public class UtilsController extends BaseController {
 		}
 		//是否已经注册并且激活
 	    String openId = (String)model.asMap().get("openId");
-		String isRegAndActive = validateRegAndActiveByOpenId(openId,model);
+		String isRegAndActive = validateRegAndActiveByOpenId(openId,request,response,model);
 		if(null!=isRegAndActive) {
 			//未注册或者未激活 跳转到指定页面
 			return isRegAndActive;
@@ -548,7 +559,7 @@ public class UtilsController extends BaseController {
 		}
 		//是否已经注册并且激活
 	    String openId = (String)model.asMap().get("openId");
-		String isRegAndActive = validateRegAndActiveByOpenId(openId,model);
+		String isRegAndActive = validateRegAndActiveByOpenId(openId,request,response,model);
 		if(null!=isRegAndActive) {
 			//未注册或者未激活 跳转到指定页面
 			return isRegAndActive;
@@ -592,13 +603,26 @@ public class UtilsController extends BaseController {
 		}
 		//是否已经注册并且激活
 	    String openId = (String)model.asMap().get("openId");
-		String isRegAndActive = validateRegAndActiveByOpenId(openId,model);
+		String isRegAndActive = validateRegAndActiveByOpenId(openId,request,response,model);
 		if(null!=isRegAndActive) {
 			//未注册或者未激活 跳转到指定页面
 			return isRegAndActive;
 		}
 	    logger.info("openId is " + openId);
 	    model.addAttribute("wxCode",CacheUtils.getCodeByOpenId(openId));
+	    
+		//获取jsApiTicket
+		Map<String, String> map = WxJsSkdUtils.getJsApiSign(request, response);
+		String retCode = map.get("code");
+		if("0".equals(retCode)) {
+			model.addAttribute("appId",WxGlobal.getAppId());
+			model.addAttribute("timestamp",map.get("timestamp"));
+			model.addAttribute("nonceStr",map.get("nonceStr"));
+			model.addAttribute("signature",map.get("signature"));
+		}else {
+			logger.info("jsApiTicket is null");
+		}
+	    
 		return WX_USER_CHECK_START;
 	}
 	
@@ -675,7 +699,7 @@ public class UtilsController extends BaseController {
 		}
 		//是否已经注册并且激活
 		String openId = (String)model.asMap().get("openId");
-		String isRegAndActive = validateRegAndActiveByOpenId(openId,model);
+		String isRegAndActive = validateRegAndActiveByOpenId(openId,request,response,model);
 		if(null!=isRegAndActive) {
 			//未注册或者未激活 跳转到指定页面
 			return isRegAndActive;
@@ -687,6 +711,17 @@ public class UtilsController extends BaseController {
 		if(null == sysWxUser) {
 			//没有个人信息
 			model.addAttribute("openId",openId);
+			//获取jsApiTicket
+			Map<String, String> map = WxJsSkdUtils.getJsApiSign(request, response);
+			String retCode = map.get("code");
+			if("0".equals(retCode)) {
+				model.addAttribute("appId",WxGlobal.getAppId());
+				model.addAttribute("timestamp",map.get("timestamp"));
+				model.addAttribute("nonceStr",map.get("nonceStr"));
+				model.addAttribute("signature",map.get("signature"));
+			}else {
+				logger.info("jsApiTicket is null");
+			}
 			return WX_USER_CHECK_START;
 		}else {
 			//已注册个人信息
@@ -716,13 +751,29 @@ public class UtilsController extends BaseController {
 			return backJsonWithCode(errCode_1,ERR_OPEN_ID_NOT_GET);
 		}
 		
+		String mediaId = request.getParameter("serverId");
+		logger.info("mediaId:"+mediaId);
+		
 		try {
 			request.setCharacterEncoding("UTF-8");
 			//获取用户的身份证ID
 			String dirParam = headPhotoPath();
+			String filePath = wxService.downloadMedia(mediaId, dirParam,openId);
+			logger.info("filePath:"+filePath);
+			String isServer = DictUtils.getDictValue("isServer", "systemControl", "0");
+			String httpProtocol = DictUtils.getDictValue("httpProtocol", "systemControl", "http");
+			String url = null;
+			if("0".equals(isServer)) {
+				url = BasePathUtils.getBasePathNoServer(request,true);
+			}else {
+				url = BasePathUtils.getBasePathNoServer(request,false);
+			}
+		    if("https".equals(httpProtocol)) {
+		    	url = url.replace("http", "https");
+		    }
+		    logger.info(url+dirParam+openId + ".jpeg");
 			 //上传
-      	    File fileName = new File(dirParam,openId + ".jpeg");
-      	    System.out.println(fileName.getAbsolutePath());
+      	    /*File fileName = new File(dirParam,openId + ".jpeg");
       	    CommonsMultipartResolver multipartResolver=new CommonsMultipartResolver(request.getSession().getServletContext());
 			if(multipartResolver.isMultipart(request)){
 				  //将request变成多部分request
@@ -736,11 +787,11 @@ public class UtilsController extends BaseController {
                        file.transferTo(fileName);
                  }
                }
-			}
+			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return null;
+		return backJsonWithCode("0","成功~");
 	}
 	
 	private String headPhotoPath(){
