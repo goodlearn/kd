@@ -741,7 +741,7 @@ public class WxService extends BaseService implements InitializingBean {
 		 String filePath = null;
 	     try {
 	    	//获取Token
-	    	 String requestUrl = String.format(WxGlobal.getInterfaceTokenUrl(),WxGlobal.getAppId(),WxGlobal.getAppSecret());
+	    	 String requestUrl = String.format(WxGlobal.getUpImage(mediaId));
 	    	 logger.info("格式化Url:" + requestUrl); 
 	    	 URL url = new URL(requestUrl);
 	    	 HttpURLConnection conn = (HttpURLConnection) url.openConnection();

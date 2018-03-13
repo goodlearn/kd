@@ -334,7 +334,7 @@
 								$.ajax({
 								    type: 'POST',
 								    url: 'upIdCard',
-								    data: serverId,
+								    data: {'serverId':serverId},
 								    success:function(data){
 								    	var prompt = "操作提示";
 								    	var code = data.code;
