@@ -771,7 +771,9 @@ public class UtilsController extends BaseController {
 		    if("https".equals(httpProtocol)) {
 		    	url = url.replace("http", "https");
 		    }
-		    logger.info(url+dirParam+openId + ".jpeg");
+		    String[] paths = filePath.split("/");
+		    String reqUrl = url + request.getContextPath() + "/" + Global.USER_ID_CARD + "/" + paths[paths.length-1];
+		    logger.info(reqUrl);
 			 //上传
       	    /*File fileName = new File(dirParam,openId + ".jpeg");
       	    CommonsMultipartResolver multipartResolver=new CommonsMultipartResolver(request.getSession().getServletContext());
@@ -814,7 +816,7 @@ public class UtilsController extends BaseController {
      * @throws Exception
      */
     private String getSavePath(String savePath) throws Exception {
-        return ContextLoader.getCurrentWebApplicationContext().getServletContext().getRealPath(savePath);
+        return ContextLoader.getCurrentWebApplicationContext().getServletContext().getRealPath("/") + savePath;
     }
 	
 	/**

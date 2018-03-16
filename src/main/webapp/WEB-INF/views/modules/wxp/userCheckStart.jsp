@@ -210,7 +210,7 @@
 
 			<div class="userIdImgUpload">
 				<div class="userIdImgCont" id="userIdImgPositive">
-					<img src="uploadfile/defaultimage.jpg" alt="图片加载中...">
+					<img src="${ctxStatic}/wx/wximages/defaultimage.jpg" alt="图片加载中...">
 					<p class="userIdImgUploadDesc">点击上传手持身份证照片</p>
 				</div>
 			</div>
@@ -228,7 +228,7 @@
 	
 	<div class="imageCover">
 		<div class="coverCont">
-			<img src="uploadfile/useridimage.jpg" width="100%">
+			<img src="${ctxStatic}/wx/wximages/uploadfile/useridimage.jpg" width="100%">
 		</div>
 	</div>
 </div>

@@ -764,10 +764,11 @@ public class WxService extends BaseService implements InitializingBean {
 		      bis.close();
 		      conn.disconnect();
 		      String info = String.format("下载媒体文件成功，filePath=" + filePath);
+		      logger.info(info);
 	    } catch (IOException e) {
 	    	  e.printStackTrace();
 	 	      String error = String.format("下载媒体文件失败：%s", e);
-	 	      System.out.println(error);
+	 	      logger.info(error);
 	    }
 	    return filePath;
 	}
