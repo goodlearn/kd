@@ -793,7 +793,7 @@ public class UtilsController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return backJsonWithCode("0","成功~");
+		return backJsonWithCode("0","成功");
 	}
 	
 	private String headPhotoPath(){

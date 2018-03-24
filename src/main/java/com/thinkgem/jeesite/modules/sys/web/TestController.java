@@ -2,6 +2,7 @@ package com.thinkgem.jeesite.modules.sys.web;
 
 import java.io.File;
 import java.util.Iterator;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -17,7 +18,9 @@ import org.springframework.web.multipart.MultipartHttpServletRequest;
 import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 
 import com.thinkgem.jeesite.common.config.Global;
+import com.thinkgem.jeesite.common.utils.BasePathUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 
 /**
 * @author wzy
@@ -56,11 +59,14 @@ public class TestController extends BaseController {
 		try {
 			request.setCharacterEncoding("UTF-8");
 			//获取用户的身份证ID
-			String idCard = request.getParameter("idCard"); 
+			String idCard = request.getParameter("wmwId"); 
 			String dirParam = headPhotoPath();
 			 //上传
       	    File fileName = new File(dirParam,idCard + ".jpeg");
       	    System.out.println(fileName.getAbsolutePath());
+      	    logger.info("fileName.getAbsolutePath():"+fileName.getAbsolutePath());
+      	    logger.info("fileName.getAbsolutePath():"+fileName.getPath());
+      	    String filePath = fileName.getPath();
       	    CommonsMultipartResolver multipartResolver=new CommonsMultipartResolver(request.getSession().getServletContext());
 			if(multipartResolver.isMultipart(request)){
 				  //将request变成多部分request
@@ -75,6 +81,23 @@ public class TestController extends BaseController {
                  }
                }
 			}
+			logger.info("filePath:"+filePath);
+			String isServer = DictUtils.getDictValue("isServer", "systemControl", "0");
+			String httpProtocol = DictUtils.getDictValue("httpProtocol", "systemControl", "http");
+			String url = null;
+			String[] paths = null;
+			if("0".equals(isServer)) {
+				url = BasePathUtils.getBasePathNoServer(request,true);
+			}else {
+				url = BasePathUtils.getBasePathNoServer(request,false);
+			}
+			String pattern = Pattern.quote(System.getProperty("file.separator"));
+			paths = filePath.split(pattern);
+		    if("https".equals(httpProtocol)) {
+		    	url = url.replace("http", "https");
+		    }
+		    String reqUrl = url + request.getContextPath()  + Global.USER_ID_CARD + "/" + paths[paths.length-1];
+		    logger.info(reqUrl);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

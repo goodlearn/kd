@@ -751,7 +751,7 @@ public class WxService extends BaseService implements InitializingBean {
 		        savePath += "/";
 		     }
 		     // 根据内容类型获取扩展名
-		     String fileExt = CasUtils .getFileexpandedName(conn.getHeaderField("Content-Type"));
+		     String fileExt = CasUtils.getFileexpandedName(conn.getHeaderField("Content-Type"));
 		     // 将mediaId作为文件名
 		      filePath = savePath + openId + fileExt;
 		      BufferedInputStream bis = new BufferedInputStream(conn.getInputStream());

@@ -158,7 +158,7 @@ public class SysWxUserController extends BaseController {
 		
 		
 		String idImg = sysWxUser.getIdcardImg();
-		if(idImg.startsWith("|")) {
+		if(null!=idImg&&idImg.startsWith("|")) {
 			idImg = idImg.substring(1,idImg.length());
 			sysWxUser.setIdcardImg(idImg);
 		}
