@@ -139,7 +139,7 @@
 			</tbody>
 		</table>
 		<li class="btns">
-			<input id="selectAll" name="selectAllBtn" onClick="CheckAll()" type="checkbox">全选/反选
+			<input id="selectAll" name="selectAllBtn" onClick="CheckAll()" type="checkbox"/>全选/反选
             <div class="funcBtn" onClick="checkBatchEnd(batchForm)">批量取货</div>
 		</li>
 	</form:form>

@@ -58,6 +58,7 @@ public class SysWxUserCheckService extends CrudService<SysWxUserCheckDao, SysWxU
 		sysWxUser.setName(sysWxUserCheck.getName());
 		sysWxUser.setIdCard(sysWxUserCheck.getIdCard());
 		sysWxUser.setPhone(sysWxUserCheck.getPhone());
+		sysWxUser.setIdcardImg(sysWxUserCheck.getRemarks());
 		sysWxUser.setUpdateBy(user);
 		sysWxUser.setUpdateDate(new Date());
 		sysWxUser.setCreateBy(user);

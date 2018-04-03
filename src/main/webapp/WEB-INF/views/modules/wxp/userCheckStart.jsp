@@ -205,15 +205,17 @@
 						<div class="inputTitle">原手机</div>
 						<input type="text" id="oldPhone" class="commonInput" name="oldPhone" placeholder="请输入你绑定的原手机号码...">
 					</div>
+					
+					<div class="userIdImgUpload">
+						<div class="userIdImgCont" id="userIdImgPositive">
+							<img id = "ipLoadImg" src="${ctxStatic}/wx/wximages/defaultimage.jpg" alt="图片加载中...">
+							<p class="userIdImgUploadDesc">点击上传手持身份证照片</p>
+						</div>
+					</div>
 				</div>
 			</form>
 
-			<div class="userIdImgUpload">
-				<div class="userIdImgCont" id="userIdImgPositive">
-					<img src="${ctxStatic}/wx/wximages/defaultimage.jpg" alt="图片加载中...">
-					<p class="userIdImgUploadDesc">点击上传手持身份证照片</p>
-				</div>
-			</div>
+		
 
 			<div class="exampleImg">查看示例图片</div>
 
@@ -337,13 +339,13 @@
 								    data: {'serverId':serverId},
 								    success:function(data){
 								    	var prompt = "操作提示";
+								    	var data = JSON.parse(data);
 								    	var code = data.code;
 								    	var message = data.message;
-								    	if(code == "1"){
-								    		rzAlert(prompt,message);
+								    	if(code == "0"){
 								    		alert("图片上传成功！");  // 需要返回一个图片连接
-									    	var imgaddr = data;
-									    	$("userIdImgCont image").attr("src",serverId);
+									    	var imgaddr = message;
+									    	$(".userIdImgCont img").attr("src",imgaddr);
 								    	}else{
 								    		rzAlert(prompt,message);
 								    	}
@@ -412,13 +414,18 @@
 				return false;
 			}
 
+			var idcardImg = $("#ipLoadImg").attr("src");
+			if (idcardImg == null || idcardImg == undefined || idcardImg == '') {
+				rzAlert("操作提示","图片为空");
+				return false;
+			}
 			
 			var msg = $("#msg").val();
 			var oldPhone = $("#oldPhone").val();
 			$.ajax({
 			    type:'POST',
 			    url:pageContextVal+'/ul/savePersonUserInfo',
-			    data:{'name':name,'idCard':idCard,'phone':phone,'msg':msg,'oldPhone':oldPhone,'wxCode':wxCodeVal},
+			    data:{'name':name,'idCard':idCard,'phone':phone,'msg':msg,'oldPhone':oldPhone,'wxCode':wxCodeVal,'idcardImg':idcardImg},
 			    dataType: "json",
 			    success:function(data){
 			    	var prompt = "操作提示";

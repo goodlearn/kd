@@ -58,31 +58,6 @@ public class SysWxUserController extends BaseController {
 	@RequestMapping(value = {"list", ""})
 	public String list(SysWxUser sysWxUser, HttpServletRequest request, HttpServletResponse response, Model model) {
 		Page<SysWxUser> page = sysWxUserService.findPage(new Page<SysWxUser>(request, response), sysWxUser); 
-		
-		String isServer = DictUtils.getDictValue("isServer", "systemControl", "0");
-		String httpProtocol = DictUtils.getDictValue("httpProtocol", "systemControl", "http");
-		String url = null;
-		if("0".equals(isServer)) {
-			url = BasePathUtils.getBasePathNoServer(request,true);
-		}else {
-			url = BasePathUtils.getBasePathNoServer(request,false);
-		}
-	    if("https".equals(httpProtocol)) {
-	    	url = url.replace("http", "https");
-	    }
-	    
-	    //附件URL
-	    List<SysWxUser> userList = page.getList();
-	    if(null!=userList && userList.size() > 0) {
-	    	for(SysWxUser forSysWxUser : userList) {
-	    		String imgIdCard = forSysWxUser.getIdcardImg();
-	    		if(null!=imgIdCard) {
-	    			imgIdCard = url + imgIdCard;
-	    			forSysWxUser.setIdcardImg(imgIdCard);
-	    		}
-	    	}
-	    }
-	    
 		model.addAttribute("page", page);
 		return "modules/sys/sysWxUserList";
 	}

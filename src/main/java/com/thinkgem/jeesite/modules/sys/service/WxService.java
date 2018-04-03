@@ -93,8 +93,6 @@ public class WxService extends BaseService implements InitializingBean {
 		
 	}
 	
-	
-	
 	/**
 	 * 依据电话和身份证查询(未激活的)
 	 * @param idCard
@@ -521,7 +519,7 @@ public class WxService extends BaseService implements InitializingBean {
 			boolean isUpdate = false;
 			if(!StringUtils.isEmpty(nickname)) {
 				isUpdate = true;
-				sysWxInfo.setNickname(nickname);
+				sysWxInfo.setNickname(CasUtils.convertUTF8_MB4(nickname));
 			}
 			if(!StringUtils.isEmpty(sex)) {
 				isUpdate = true;
@@ -553,7 +551,7 @@ public class WxService extends BaseService implements InitializingBean {
 			sysWxInfo.setCreateBy(user);
 			sysWxInfo.setCreateDate(new Date());
 			if(!StringUtils.isEmpty(nickname)) {
-				sysWxInfo.setNickname(nickname);
+				sysWxInfo.setNickname(CasUtils.convertUTF8_MB4(nickname));
 			}
 			if(!StringUtils.isEmpty(sex)) {
 				sysWxInfo.setSex(sex);
@@ -717,6 +715,15 @@ public class WxService extends BaseService implements InitializingBean {
 	}
 	
 	@Transactional(readOnly = false)
+	public void updateSysWxUserInfoUrl(SysWxUser sysWxUser,String reqUrl) {
+		User user = UserUtils.get(DEFAULT_ID_SYS_MANAGER);
+	    sysWxUser.setIdcardImg(reqUrl);
+		sysWxUser.setUpdateBy(user);
+		sysWxUser.setUpdateDate(new Date());
+		sysWxUserDao.update(sysWxUser);
+	}
+	
+	@Transactional(readOnly = false)
 	public void saveSysWxInfoInfo(SysWxInfo sysWxInfo) {
 		sysWxInfoDao.insert(sysWxInfo);
 	}
@@ -829,7 +836,7 @@ public class WxService extends BaseService implements InitializingBean {
 		 * 发送模板消息
 		 */
 		String userName = user.getName();
-		sendMessageEndExpress(toUserOpenId,userName,"0");	
+		sendMessageEndExpress(toUserOpenId,userName,sysExpress,user);	
 	}
 	
 	//更新个人信息
@@ -1021,10 +1028,10 @@ public class WxService extends BaseService implements InitializingBean {
 		first.setValue("账户激活成功通知");
 		WxTemplateData keyword1 = new WxTemplateData();
 		keyword1.setColor(WxGlobal.getTemplateMsgColor_1());
-		keyword1.setValue(DateUtils.getDateTime());
+		keyword1.setValue(username);
 		WxTemplateData keyword2 = new WxTemplateData();
 		keyword2.setColor(WxGlobal.getTemplateMsgColor_1());
-		keyword2.setValue(username);
+		keyword2.setValue(DateUtils.getDateTime());
 		WxTemplateData remark = new WxTemplateData();
 		String content="感谢您的支持，详情请前往快递中心咨询";
 		remark.setColor(WxGlobal.getTemplateMsgColor_1());
@@ -1036,6 +1043,7 @@ public class WxService extends BaseService implements InitializingBean {
 		template.setTopcolor(WxGlobal.getTemplateMsgColor_2());
 		template.setTemplate_id(WxGlobal.getTemplateMsg_2());
 		Map<String,WxTemplateData> wxTemplateDatas = new HashMap<String,WxTemplateData>();
+		wxTemplateDatas.put("first", first);
 		wxTemplateDatas.put("keyword1", keyword1);
 		wxTemplateDatas.put("keyword2", keyword2);
 		wxTemplateDatas.put("remark", remark);
@@ -1066,7 +1074,7 @@ public class WxService extends BaseService implements InitializingBean {
 	 * @param money 金额
 	 * @return
 	 */
-	public String sendMessageEndExpress(String toUser,String username,String money) {
+	public String sendMessageEndExpress(String toUser,String username,SysExpress sysExpress,User user) {
 		logger.info("send msg start");
 		/*
 		 *	模板ID 为 DQjKDzP4EQqrA6r_abDDYJjyNZ9071tuDls2DeNrJZA
@@ -1079,25 +1087,31 @@ public class WxService extends BaseService implements InitializingBean {
 				{{remark.DATA}}
 		 */
 		
+		String phone = sysExpress.getPhone();
+		SysWxUser sysWxUser = findByPhone(phone);
+		
 		//first.DATA
 		WxTemplateData first = new WxTemplateData();
 		first.setColor(WxGlobal.getTemplateMsgColor_1());
-		first.setValue("您收到一个订单");
+		first.setValue("您的快递已取走");
 		WxTemplateData keyword1 = new WxTemplateData();
 		keyword1.setColor(WxGlobal.getTemplateMsgColor_1());
+		keyword1.setValue(sysExpress.getExpressId());//订单号
+		WxTemplateData keyword2 = new WxTemplateData();
+		keyword2.setColor(WxGlobal.getTemplateMsgColor_1());
+		keyword2.setValue(sysWxUser.getName());//顾客姓名
 		String state = DictUtils.getDictLabel("1","expressState","已完结");
-		keyword1.setValue(state);
-		WxTemplateData keyword2 = new WxTemplateData();
-		keyword2.setColor(WxGlobal.getTemplateMsgColor_1());
-		keyword2.setValue(DateUtils.getDateTime());
 		WxTemplateData keyword3 = new WxTemplateData();
 		keyword3.setColor(WxGlobal.getTemplateMsgColor_1());
-		keyword3.setValue(money);
+		keyword3.setValue(state);//取件状态
 		WxTemplateData keyword4 = new WxTemplateData();
 		keyword4.setColor(WxGlobal.getTemplateMsgColor_1());
-		keyword4.setValue(username);
+		keyword4.setValue(DateUtils.getDateTime());//取件时间
+		WxTemplateData keyword5 = new WxTemplateData();
+		keyword5.setColor(WxGlobal.getTemplateMsgColor_1());
+		keyword5.setValue(user.getName());//服务人员
 		WxTemplateData remark = new WxTemplateData();
-		String content="您的快递已取走,谢谢您的合作";
+		String content="谢谢您的合作,详情请前往易度空间咨询";
 		remark.setColor(WxGlobal.getTemplateMsgColor_1());
 		remark.setValue(content);
 		
@@ -1107,10 +1121,12 @@ public class WxService extends BaseService implements InitializingBean {
 		template.setTopcolor(WxGlobal.getTemplateMsgColor_2());
 		template.setTemplate_id(WxGlobal.getTemplateMsg_1());
 		Map<String,WxTemplateData> wxTemplateDatas = new HashMap<String,WxTemplateData>();
+		wxTemplateDatas.put("first", first);
 		wxTemplateDatas.put("keyword1", keyword1);
 		wxTemplateDatas.put("keyword2", keyword2);
 		wxTemplateDatas.put("keyword3", keyword3);
 		wxTemplateDatas.put("keyword4", keyword4);
+		wxTemplateDatas.put("keyword5", keyword5);
 		wxTemplateDatas.put("remark", remark);
 		template.setData(wxTemplateDatas);
 		//获取Token
@@ -1139,7 +1155,7 @@ public class WxService extends BaseService implements InitializingBean {
 	 * @param money 金额
 	 * @return
 	 */
-	public String sendMessageExpress(String toUser,String username,String money) {
+	public String sendMessageExpress(String toUser,String username,SysExpress sysExpress,User user) {
 		logger.info("send msg start");
 		/*
 		 *	模板ID 为 DQjKDzP4EQqrA6r_abDDYJjyNZ9071tuDls2DeNrJZA
@@ -1152,25 +1168,35 @@ public class WxService extends BaseService implements InitializingBean {
 				{{remark.DATA}}
 		 */
 		
+		String phone = sysExpress.getPhone();
+		SysWxUser sysWxUser = findByPhone(phone);
+		
 		//first.DATA
 		WxTemplateData first = new WxTemplateData();
 		first.setColor(WxGlobal.getTemplateMsgColor_1());
-		first.setValue("您收到一个订单");
+		first.setValue("您好，有您的待取快递");
+		//订单号
 		WxTemplateData keyword1 = new WxTemplateData();
 		keyword1.setColor(WxGlobal.getTemplateMsgColor_1());
-		String state = DictUtils.getDictLabel("0","expressState","已入库");
-		keyword1.setValue(state);
+		keyword1.setValue(sysExpress.getExpressId());
+		//顾客姓名
 		WxTemplateData keyword2 = new WxTemplateData();
 		keyword2.setColor(WxGlobal.getTemplateMsgColor_1());
-		keyword2.setValue(DateUtils.getDateTime());
+		keyword2.setValue(sysWxUser.getName());
+		//取件状态
+		String state = DictUtils.getDictLabel("0","expressState","已入库");
 		WxTemplateData keyword3 = new WxTemplateData();
 		keyword3.setColor(WxGlobal.getTemplateMsgColor_1());
-		keyword3.setValue(money);
+		keyword3.setValue(state);
+		//取件时间
 		WxTemplateData keyword4 = new WxTemplateData();
 		keyword4.setColor(WxGlobal.getTemplateMsgColor_1());
-		keyword4.setValue(username);
+		keyword4.setValue(DateUtils.getDateTime());//取件时间
+		WxTemplateData keyword5 = new WxTemplateData();
+		keyword5.setColor(WxGlobal.getTemplateMsgColor_1());
+		keyword5.setValue(user.getName());//服务人员
 		WxTemplateData remark = new WxTemplateData();
-		String content="你的快递已到，请携带身份证前往易度空间领取";
+		String content="请携带身份证或者取货码前往易度空间领取";
 		remark.setColor(WxGlobal.getTemplateMsgColor_1());
 		remark.setValue(content);
 		
@@ -1180,10 +1206,12 @@ public class WxService extends BaseService implements InitializingBean {
 		template.setTopcolor(WxGlobal.getTemplateMsgColor_2());
 		template.setTemplate_id(WxGlobal.getTemplateMsg_1());
 		Map<String,WxTemplateData> wxTemplateDatas = new HashMap<String,WxTemplateData>();
+		wxTemplateDatas.put("first", first);
 		wxTemplateDatas.put("keyword1", keyword1);
 		wxTemplateDatas.put("keyword2", keyword2);
 		wxTemplateDatas.put("keyword3", keyword3);
 		wxTemplateDatas.put("keyword4", keyword4);
+		wxTemplateDatas.put("keyword5", keyword5);
 		wxTemplateDatas.put("remark", remark);
 		template.setData(wxTemplateDatas);
 		//获取Token

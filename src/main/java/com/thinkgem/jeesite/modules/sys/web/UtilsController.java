@@ -2,10 +2,12 @@ package com.thinkgem.jeesite.modules.sys.web;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +47,7 @@ import com.thinkgem.jeesite.modules.sys.entity.SysWxUserCheck;
 import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.WxService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
+import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 import com.thinkgem.jeesite.modules.sys.view.JsonSysExpress;
 import com.alibaba.fastjson.JSONObject;
 
@@ -85,6 +88,7 @@ public class UtilsController extends BaseController {
 	 * 错误信息
 	 */
 	private final String ERR_OPEN_ID_NOT_GET = "微信号未获取";
+	private final String ERR_MEDIA_ID_NOT_GET = "微信图片号未获取";
 	private final String ERR_ID_CARD_NULL = "身份证号不能为空";
 	private final String ERR_Q_RECORD_NULL = "无身份信息";
 	private final String ERR_ID_EXPRESS_NULL = "快递号不能为空";
@@ -95,6 +99,7 @@ public class UtilsController extends BaseController {
 	private final String ERR_EXPREE_ID_NULL = "快递单号不能为空";
 	private final String ERR_NAME_NULL = "姓名不能为空";
 	private final String ERR_CODE_NULL = "验证码不能为空";
+	private final String ERR_UP_IMAGE_NULL = "上传图片不能为空";
 	private final String ERR_CODE_SIZE = "验证码长度错误";
 	private final String ERR_CODE = "请获取验证码";
 	private final String ERR_CODE_TIME_OUT = "验证码已超时";
@@ -751,9 +756,14 @@ public class UtilsController extends BaseController {
 			return backJsonWithCode(errCode_1,ERR_OPEN_ID_NOT_GET);
 		}
 		
+		//微信图片未获取
 		String mediaId = request.getParameter("serverId");
+		if(StringUtils.isEmpty(mediaId)) {
+			return backJsonWithCode(errCode_1,ERR_MEDIA_ID_NOT_GET);
+		}
 		logger.info("mediaId:"+mediaId);
 		
+		String reqUrl = null;
 		try {
 			request.setCharacterEncoding("UTF-8");
 			//获取用户的身份证ID
@@ -763,37 +773,25 @@ public class UtilsController extends BaseController {
 			String isServer = DictUtils.getDictValue("isServer", "systemControl", "0");
 			String httpProtocol = DictUtils.getDictValue("httpProtocol", "systemControl", "http");
 			String url = null;
+			String[] paths = null;
 			if("0".equals(isServer)) {
 				url = BasePathUtils.getBasePathNoServer(request,true);
 			}else {
 				url = BasePathUtils.getBasePathNoServer(request,false);
 			}
+			String pattern = Pattern.quote(System.getProperty("file.separator"));
+			paths = filePath.split(pattern);
 		    if("https".equals(httpProtocol)) {
 		    	url = url.replace("http", "https");
 		    }
-		    String[] paths = filePath.split("/");
-		    String reqUrl = url + request.getContextPath() + "/" + Global.USER_ID_CARD + "/" + paths[paths.length-1];
+		    reqUrl = url + request.getContextPath() + Global.USER_ID_CARD + "/" + paths[paths.length-1];
 		    logger.info(reqUrl);
-			 //上传
-      	    /*File fileName = new File(dirParam,openId + ".jpeg");
-      	    CommonsMultipartResolver multipartResolver=new CommonsMultipartResolver(request.getSession().getServletContext());
-			if(multipartResolver.isMultipart(request)){
-				  //将request变成多部分request
-                MultipartHttpServletRequest multiRequest=(MultipartHttpServletRequest)request;
-                //获取multiRequest 中所有的文件名
-                Iterator<String> iter=multiRequest.getFileNames();
-                while(iter.hasNext()){
-               	 MultipartFile file=multiRequest.getFile(iter.next().toString());
-                 if(file!=null){
-                   	   //上传
-                       file.transferTo(fileName);
-                 }
-               }
-			}*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return backJsonWithCode("0","成功");
+		String retResult = backJsonWithCode("0",reqUrl);
+		logger.info(retResult);
+		return retResult;
 	}
 	
 	private String headPhotoPath(){
@@ -849,6 +847,7 @@ public class UtilsController extends BaseController {
 		String phone = request.getParameter("phone").trim();
 		String msg = request.getParameter("msg").trim();
 		String oldPhone = request.getParameter("oldPhone").trim();//老手机号
+		String idcardImg = request.getParameter("idcardImg").trim();//url地址
 		
 		final String successCode = "0";//成功码
 		final String errCode_2 = "2";//验证码长度为固定值
@@ -902,6 +901,11 @@ public class UtilsController extends BaseController {
 		//手机号码格式不正确
 		if(!PhoneUtils.validatePhone(phone)) {
 			return backJsonWithCode(errCode_13,ERR_NEW_PHONE_PATTERN);
+		}
+		
+		//上传图片不能为空
+		if(StringUtils.isEmpty(idcardImg)) {
+			return backJsonWithCode(errCode_1,ERR_UP_IMAGE_NULL);
 		}
 		
 		//验证码缓存
@@ -978,6 +982,7 @@ public class UtilsController extends BaseController {
 		param.setIdCard(idCard);
 		param.setPhone(phone);
 		param.setOpenId(openId);
+		param.setRemarks(idcardImg);//存放图片URl
 		param.setState(DictUtils.getDictValue("未激活", "userCheckState", "0"));
 
 		//如果身份信息不存在 进行保存操作
@@ -1215,7 +1220,7 @@ public class UtilsController extends BaseController {
 			}
 		}else {
 			String userName = user.getName();
-			wxService.sendMessageExpress(sendOpenId,userName,"0");	
+			wxService.sendMessageExpress(sendOpenId,userName,sysExpress,user);	
 		}
 		model.addAttribute("openId",openId);
 		return backJsonWithCode(successCode,MSG_EXPRESS_SAVE_SUCCESS);

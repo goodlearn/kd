@@ -70,7 +70,7 @@
 				</td>
 				<shiro:hasPermission name="sys:sysWxUser:edit"><td>
 					<c:if test = "${not empty sysWxUser.idcardImg}">
-						<a href="${sysWxUser.idcardImg}">查看图片</a>
+						<a href="${sysWxUser.idcardImg}" target="_blank">查看图片</a>
 					</c:if>
     				<a href="${ctx}/sys/sysWxUser/form?id=${sysWxUser.id}">修改</a>
 					<a href="${ctx}/sys/sysWxUser/delete?id=${sysWxUser.id}" onclick="return confirmx('确认要删除该微信用户表吗？', this.href)">删除</a>

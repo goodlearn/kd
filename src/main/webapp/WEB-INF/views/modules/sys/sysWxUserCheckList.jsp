@@ -46,7 +46,6 @@
 				<th>手机</th>
 				<th>激活状态</th>
 				<th>更新时间</th>
-				<th>备注信息</th>
 				<shiro:hasPermission name="sys:sysWxUserCheck:edit"><th>操作</th></shiro:hasPermission>
 			</tr>
 		</thead>
@@ -68,10 +67,8 @@
 				<td>
 					<fmt:formatDate value="${sysWxUserCheck.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				</td>
-				<td>
-					${sysWxUserCheck.remarks}
-				</td>
 				<shiro:hasPermission name="sys:sysWxUserCheck:edit"><td>
+					<a href="${sysWxUserCheck.remarks}" target="_blank">查看图片</a>
     				<a href="${ctx}/sys/sysWxUserCheck/active?id=${sysWxUserCheck.id}">激活</a>
 				</td></shiro:hasPermission>
 				<shiro:hasPermission name="sys:sysWxUserCheck:delete"><td>

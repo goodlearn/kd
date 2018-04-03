@@ -112,7 +112,7 @@ public class SysExpressService extends CrudService<SysExpressDao, SysExpress> {
 			logger.info("save sendMsg is null ");
 		}else {
 			String userName = user.getName();
-			wxService.sendMessageEndExpress(openId,userName,"0");	
+			wxService.sendMessageEndExpress(openId,userName,sysExpress,user);	
 		}
 	}
 	
@@ -139,7 +139,7 @@ public class SysExpressService extends CrudService<SysExpressDao, SysExpress> {
 			logger.info("save sendMsg is null ");
 		}else {
 			String userName = user.getName();
-			wxService.sendMessageExpress(openId,userName,"0");	
+			wxService.sendMessageExpress(openId,userName,sysExpress,user);	
 		}
 	}
 	
@@ -154,7 +154,7 @@ public class SysExpressService extends CrudService<SysExpressDao, SysExpress> {
 			logger.info("save sendMsg is null ");
 		}else {
 			String userName = user.getName();
-			wxService.sendMessageExpress(openId,userName,"0");	
+			wxService.sendMessageExpress(openId,userName,sysExpress,user);	
 		}
 		return openId;
 	}
