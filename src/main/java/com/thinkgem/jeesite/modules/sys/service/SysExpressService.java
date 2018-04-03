@@ -63,7 +63,6 @@ public class SysExpressService extends CrudService<SysExpressDao, SysExpress> {
 		return super.findList(sysExpress);
 	}
 	
-	
 	//获取未取货的快递单分页信息
 	public Page<SysExpress> findUnEndPage(Page<SysExpress> page, SysExpress sysExpress) {
 		sysExpress.setPage(page);

@@ -1383,6 +1383,17 @@ public class WxService extends BaseService implements InitializingBean {
     }
 
     
-    
+    //是否有未取货的快递
+    public boolean findExpressState(String expressNum) {
+    	String state = DictUtils.getDictValue("已入库", "expressState", "0");
+		SysExpress sysExpress = new SysExpress();
+		sysExpress.setState(state);
+		sysExpress.setSearchUnEndValue(expressNum);
+		List<SysExpress> result = sysExpressDao.findUnEndList(sysExpress);
+		if(null == result || result.size() == 0) {
+			return false;
+		}
+		return true;
+    }
     
 }

@@ -908,6 +908,12 @@ public class UtilsController extends BaseController {
 			return backJsonWithCode(errCode_1,ERR_UP_IMAGE_NULL);
 		}
 		
+		//上传图片不能为空
+		String imageDefaultPath = "/kd/static/wx/wximages/defaultimage.jpg";
+		if(imageDefaultPath.equals(idcardImg)) {
+			return backJsonWithCode(errCode_1,ERR_UP_IMAGE_NULL);
+		}
+		
 		//验证码缓存
 		String cacheKey = Global.PREFIX_MOBLIE_CODE + phone;
 		PhoneMsgCache phoneMsgCache = (PhoneMsgCache)CacheUtils.get(cacheKey);
@@ -1249,14 +1255,14 @@ public class UtilsController extends BaseController {
 		if(StringUtils.isEmpty(expressNum)) {
 			return backJsonWithCode(errCode_1,ERR_ID_EXPRESS_NULL);
 		}
-		
+		final String successCode = "0";//成功码
 		//查询快递
-		SysExpress sysExpress = wxService.findExpressByExpressId(expressNum);
+		
+		/*	SysExpress sysExpress = wxService.findExpressByExpressId(expressNum);
 		if(null == sysExpress) {
 			return backJsonWithCode(errCode_1,ERR_EXPRESS_NOT_ARRIVE);
 		}
 		
-		final String successCode = "0";//成功码
 		String expressState = sysExpress.getState();
 		String startState = DictUtils.getDictValue("已入库", "expressState", "0");
 		if(expressState.equals(startState)) {
@@ -1265,6 +1271,9 @@ public class UtilsController extends BaseController {
 		String endState = DictUtils.getDictValue("已完结", "expressState", "0");
 		if(expressState.equals(endState)) {
 			return backJsonWithCode(successCode,MSG_EXPRESS_END_SUCCESS);
+		}*/
+		if(wxService.findExpressState(expressNum)) {
+			return backJsonWithCode(successCode,MSG_EXPRESS_ARRIVER_SUCCESS);
 		}
 		return backJsonWithCode(errCode_1,ERR_NO_EXPRESS_INFO);
 	}

@@ -79,6 +79,7 @@
 			width: 50%;
 			float: left;
 			padding-top: 20px;
+			overflow:auto;
 		}
 
 		.submitBtn,.backBtn{
@@ -201,21 +202,20 @@
 						<input type="text" id="msg" class="verifiInput" name="msg" placeholder="请输入验证码...">
 						<input type="button" class="verifiBtn" value="发送验证码">
 					</div>
-					<div class="inputTypeCont" id="oldPhoneDiv">
+					<div class="inputTypeCont" id="oldPhoneDiv" style="display:none;">
 						<div class="inputTitle">原手机</div>
 						<input type="text" id="oldPhone" class="commonInput" name="oldPhone" placeholder="请输入你绑定的原手机号码...">
 					</div>
 					
-					<div class="userIdImgUpload">
-						<div class="userIdImgCont" id="userIdImgPositive">
-							<img id = "ipLoadImg" src="${ctxStatic}/wx/wximages/defaultimage.jpg" alt="图片加载中...">
-							<p class="userIdImgUploadDesc">点击上传手持身份证照片</p>
-						</div>
-					</div>
 				</div>
 			</form>
 
-		
+			<div class="userIdImgUpload">
+				<div class="userIdImgCont" id="userIdImgPositive">
+					<img id = "ipLoadImg" src="${ctxStatic}/wx/wximages/defaultimage.jpg" alt="图片加载中...">
+					<p class="userIdImgUploadDesc">点击上传手持身份证照片</p>
+				</div>
+			</div>
 
 			<div class="exampleImg">查看示例图片</div>
 
@@ -230,7 +230,7 @@
 	
 	<div class="imageCover">
 		<div class="coverCont">
-			<img src="${ctxStatic}/wx/wximages/uploadfile/useridimage.jpg" width="100%">
+			<img src="${ctxStatic}/wx/wximages/useridimage.jpg" width="100%">
 		</div>
 	</div>
 </div>
@@ -244,6 +244,10 @@
 		if (windowW > 600) {
 			windowW = 600;
 		}
+		
+		var topH = $(".userCheckCont").height();
+		$(".solidCont").css({"height":(windowH - topH) + "px"});
+		$(".infoCheckEditCont").css({"height":(windowH - topH - 30) + "px"});
 		
 		// cover
 		var contentH = $(".content").height();
@@ -267,7 +271,7 @@
         var signature = $("#signature").val();//签名
         var appId = $("#appId").val();//签名
         wx.config({
-            debug : true, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            debug : false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
             appId : appId, // 必填，公众号的唯一标识
             timestamp : timestamp, // 必填，生成签名的时间戳
             nonceStr : nonceStr, // 必填，生成签名的随机串
