@@ -40,6 +40,7 @@ import com.thinkgem.jeesite.common.utils.IdcardUtils;
 import com.thinkgem.jeesite.common.utils.PhoneUtils;
 import com.thinkgem.jeesite.common.utils.WxJsSkdUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.sys.entity.PickUpCode;
 import com.thinkgem.jeesite.modules.sys.entity.SysExpress;
 import com.thinkgem.jeesite.modules.sys.entity.SysWxInfo;
 import com.thinkgem.jeesite.modules.sys.entity.SysWxUser;
@@ -119,6 +120,8 @@ public class UtilsController extends BaseController {
 	private final String ERR_NOT_SAME_OLD_PHONE = "绑定原手机号码输入错误";
 	private final String ERR_NOT_SAME_OLD_NAME = "与原姓名关联不匹配";
 	private final String ERR_NO_USER = "未检测到操作用户";
+	private final String ERR_PICK_CODE = "不存在对应取货码";
+	private final String ERR_DEAD_LINE = "请稍后操作，有其它用户正在保存数据";
 	private final String ERR_OLD_PHONE_PATTERN = "旧手机号码格式不正确";
 	private final String ERR_NEW_PHONE_PATTERN = "新手机号码格式不正确";
 	private final String ERR_SAME_OLD_NEW_PHONE = "新旧手机号码一致";
@@ -1210,25 +1213,38 @@ public class UtilsController extends BaseController {
 		}else {
 			sysExpress.setCompany("0");
 		}
-		wxService.saveExpress(sysExpress,user);
-		/**
-		 * 发送模板消息
-		 */
-		String sendOpenId = wxService.getOpenIdForMsg(sysExpress);
-		if(null == sendOpenId) {
-			//微信发送失败
-			//改用短信发送
-			String returnMsg = wxService.sendAliyunMsgTemplate(sysExpress, user);
-			if(null!=returnMsg) {
-				return backJsonWithCode(successCode,returnMsg + " 快递已入库");
-			}else {
-				return backJsonWithCode(successCode,"消息发送成功,快递已入库");
+		
+		try {
+			PickUpCode queryPickUpCode = new PickUpCode();
+			queryPickUpCode.setCompanyKey(sysExpress.getCompany());
+			List<PickUpCode> resultPickUpCodeList = wxService.findPickUpCode(queryPickUpCode);
+			if(null == resultPickUpCodeList || resultPickUpCodeList.size() == 0||resultPickUpCodeList.size()>1) {
+				return backJsonWithCode(errCode_4,ERR_PICK_CODE);
 			}
-		}else {
-			String userName = user.getName();
-			wxService.sendMessageExpress(sendOpenId,userName,sysExpress,user);	
+			
+			wxService.saveExpress(sysExpress,user);
+			/**
+			 * 发送模板消息
+			 */
+			String sendOpenId = wxService.getOpenIdForMsg(sysExpress);
+			if(null == sendOpenId) {
+				//微信发送失败
+				//改用短信发送
+				String returnMsg = wxService.sendAliyunMsgTemplate(sysExpress, user);
+				if(null!=returnMsg) {
+					return backJsonWithCode(successCode,returnMsg + " 快递已入库");
+				}else {
+					return backJsonWithCode(successCode,"消息发送成功,快递已入库");
+				}
+			}else {
+				String userName = user.getName();
+				wxService.sendMessageExpress(sendOpenId,userName,sysExpress,user);	
+			}
+			model.addAttribute("openId",openId);
+		}catch(Exception e) {
+			e.printStackTrace();
+			return backJsonWithCode(errCode_4,ERR_DEAD_LINE);
 		}
-		model.addAttribute("openId",openId);
 		return backJsonWithCode(successCode,MSG_EXPRESS_SAVE_SUCCESS);
 	}
 	

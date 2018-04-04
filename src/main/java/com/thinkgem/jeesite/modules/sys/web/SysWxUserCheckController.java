@@ -1,6 +1,3 @@
-/**
- * Copyright &copy; 2012-2016 <a href="https://github.com/thinkgem/jeesite">JeeSite</a> All rights reserved.
- */
 package com.thinkgem.jeesite.modules.sys.web;
 
 import javax.servlet.http.HttpServletRequest;
@@ -20,8 +17,11 @@ import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.common.utils.StringUtils;
 import com.thinkgem.jeesite.modules.sys.entity.SysWxUserCheck;
+import com.thinkgem.jeesite.modules.sys.entity.User;
 import com.thinkgem.jeesite.modules.sys.service.SysWxUserCheckService;
+import com.thinkgem.jeesite.modules.sys.service.WxService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
+import com.thinkgem.jeesite.modules.sys.utils.UserUtils;
 
 /**
  * 信信息检查表Controller
@@ -34,6 +34,9 @@ public class SysWxUserCheckController extends BaseController {
 
 	@Autowired
 	private SysWxUserCheckService sysWxUserCheckService;
+	
+	@Autowired
+	private WxService wxService;
 	
 	@ModelAttribute
 	public SysWxUserCheck get(@RequestParam(required=false) String id) {
@@ -55,6 +58,46 @@ public class SysWxUserCheckController extends BaseController {
 		return "modules/sys/sysWxUserCheckList";
 	}
 
+	
+	/**
+	 * 激活
+	 * @param sysWxUserCheck
+	 * @param model
+	 * @return
+	 */
+	@RequiresPermissions("sys:sysWxUserCheck:edit")
+	@RequestMapping(value = "refuse")
+	public String refuse(SysWxUserCheck sysWxUserCheck, Model model,RedirectAttributes redirectAttributes) {
+		
+		String retPath = "redirect:"+Global.getAdminPath()+"/sys/sysWxUserCheck/?repage";
+		
+		//验证
+		if (!beanValidator(model, sysWxUserCheck)){
+			return retPath;
+		}
+		
+		if(null == sysWxUserCheck.getOpenId()) {
+			addMessage(redirectAttributes, "OpenId数据错误,空值");
+			return retPath;
+		}
+		
+		String state = sysWxUserCheck.getState();
+		if(null == state) {
+			addMessage(redirectAttributes, "数据错误,空值");
+			return retPath;
+		}
+		
+		if(!"0".equals(state)) {
+			addMessage(redirectAttributes, "该用户已激活");
+			return retPath;
+		}
+		User user = UserUtils.getUser();
+		String userName = user.getName();
+		wxService.sendMessageCheck(sysWxUserCheck.getOpenId(),userName);
+		addMessage(redirectAttributes, "信息已发送");
+		model.addAttribute("sysWxUserCheck", sysWxUserCheck);
+		return retPath;
+	}
 	
 	/**
 	 * 激活

@@ -210,7 +210,7 @@
 				</div>
 			</form>
 
-			<div class="userUploadDesc">
+		<%-- 	<div class="userUploadDesc">
 				为保证快递实名信息，请如实填写身份证号。身份证审核有两种方式
 				（1）填写信息提交后，请携带身份证前往易度空间进行人工审核
 				（2）上传身份证明图片，由管理人员统一进行审核（不需要携带身份证前往易度空间）
@@ -224,7 +224,7 @@
 				</div>
 			</div>
 
-			<div class="exampleImg">查看示例图片</div>
+			<div class="exampleImg">查看示例图片</div> --%>
 
 			<div id = "userRegSubmitBtn" class="submitBtn userRegSubmitBtn">确认提交</div>
 			<div class="backBtn">点我返回</div>

@@ -1,7 +1,6 @@
-/**
- * Copyright &copy; 2012-2016 <a href="https://github.com/thinkgem/jeesite">JeeSite</a> All rights reserved.
- */
 package com.thinkgem.jeesite.modules.sys.web;
+
+import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -20,6 +19,7 @@ import com.thinkgem.jeesite.common.persistence.Page;
 import com.thinkgem.jeesite.common.web.BaseController;
 import com.thinkgem.jeesite.common.utils.PhoneUtils;
 import com.thinkgem.jeesite.common.utils.StringUtils;
+import com.thinkgem.jeesite.modules.sys.entity.PickUpCode;
 import com.thinkgem.jeesite.modules.sys.entity.SysExpress;
 import com.thinkgem.jeesite.modules.sys.service.SysExpressService;
 import com.thinkgem.jeesite.modules.sys.service.WxService;
@@ -174,23 +174,37 @@ public class SysExpressController extends BaseController {
 			return addForm(sysExpress, model);
 		}
 		
-		//默认保存快递状态为已入库
-		String state = DictUtils.getDictValue("已入库", "expressState", "0");
-		sysExpress.setState(state);
-		//保存成功
-		sysExpress = wxService.saveExpress(sysExpress,UserUtils.getUser());
-		//发送消息
-		if(null == sysExpressService.sendMsgTemplate(sysExpress, UserUtils.getUser()) ) {
-			//微信发送失败
-			//改用短信发送
-			String returnMsg = wxService.sendAliyunMsgTemplate(sysExpress, UserUtils.getUser());
-			if(null!=returnMsg) {
-				addMessage(redirectAttributes, returnMsg + " 快递已入库");
-			}else {
-				addMessage(redirectAttributes, "消息发送成功,快递已入库");
+		try {
+			PickUpCode queryPickUpCode = new PickUpCode();
+			queryPickUpCode.setCompanyKey(sysExpress.getCompany());
+			List<PickUpCode> resultPickUpCodeList = wxService.findPickUpCode(queryPickUpCode);
+			if(null == resultPickUpCodeList || resultPickUpCodeList.size() == 0||resultPickUpCodeList.size()>1) {
+				addMessage(model, "没有对应的取货码");
+				return addForm(sysExpress, model);
 			}
-		}else {
-			addMessage(redirectAttributes, "快递已入库");
+			
+			//默认保存快递状态为已入库
+			String state = DictUtils.getDictValue("已入库", "expressState", "0");
+			sysExpress.setState(state);
+			//保存成功
+			sysExpress = wxService.saveExpress(sysExpress,UserUtils.getUser());
+			//发送消息
+			if(null == sysExpressService.sendMsgTemplate(sysExpress, UserUtils.getUser()) ) {
+				//微信发送失败
+				//改用短信发送
+				String returnMsg = wxService.sendAliyunMsgTemplate(sysExpress, UserUtils.getUser());
+				if(null!=returnMsg) {
+					addMessage(redirectAttributes, returnMsg + " 快递已入库");
+				}else {
+					addMessage(redirectAttributes, "消息发送成功,快递已入库");
+				}
+			}else {
+				addMessage(redirectAttributes, "快递已入库");
+			}
+		}catch(Exception e) {
+			e.printStackTrace();
+			addMessage(redirectAttributes, "请稍后操作，有其它用户正在保存数据");
+			return "redirect:"+Global.getAdminPath()+"/sys/sysExpress/?repage";
 		}
 		return "redirect:"+Global.getAdminPath()+"/sys/sysExpress/?repage";
 	}

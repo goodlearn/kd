@@ -24,6 +24,7 @@ import org.dom4j.io.SAXReader;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
@@ -38,12 +39,14 @@ import com.thinkgem.jeesite.common.utils.IdGen;
 import com.thinkgem.jeesite.common.utils.TimeUtils;
 import com.thinkgem.jeesite.common.utils.WxUrlUtils;
 import com.thinkgem.jeesite.modules.sys.dao.DictDao;
+import com.thinkgem.jeesite.modules.sys.dao.PickUpCodeDao;
 import com.thinkgem.jeesite.modules.sys.dao.SysExpressDao;
 import com.thinkgem.jeesite.modules.sys.dao.SysWxInfoDao;
 import com.thinkgem.jeesite.modules.sys.dao.SysWxUserCheckDao;
 import com.thinkgem.jeesite.modules.sys.dao.SysWxUserDao;
 import com.thinkgem.jeesite.modules.sys.dao.UserDao;
 import com.thinkgem.jeesite.modules.sys.entity.Dict;
+import com.thinkgem.jeesite.modules.sys.entity.PickUpCode;
 import com.thinkgem.jeesite.modules.sys.entity.SysExpress;
 import com.thinkgem.jeesite.modules.sys.entity.SysWxInfo;
 import com.thinkgem.jeesite.modules.sys.entity.SysWxUser;
@@ -78,6 +81,10 @@ public class WxService extends BaseService implements InitializingBean {
 	
 	@Autowired
 	private SysExpressDao sysExpressDao;
+	
+	
+	@Autowired
+	private PickUpCodeDao pickUpCodeDao;
 	
 	@Autowired
 	private SysWxInfoDao sysWxInfoDao;
@@ -300,16 +307,51 @@ public class WxService extends BaseService implements InitializingBean {
 		return sysExpressDao.findNoActiveByIdCard(idCard);
 	}
 	
+	/**
+	 * 查询快递
+	 */
+	public List<PickUpCode> findPickUpCode(PickUpCode queryPickUpCode) {
+		return pickUpCodeDao.findList(queryPickUpCode);
+	}
+	
 	
 	/**
 	 * 保存快递
 	 */
-	@Transactional(readOnly = false)
+	@Transactional(isolation = Isolation.SERIALIZABLE)
 	public SysExpress saveExpress(SysExpress sysExpress,User user) {
 		
 		String today = CasUtils.convertDate2DefaultString(new Date());//当下的日期
 		String company = sysExpress.getCompany();//公司
 		
+		/**
+		 * 1、获取公司号
+		 * 2、查找取货码
+		 * 3、自增取货码
+		 */
+		PickUpCode queryPickUpCode = new PickUpCode();
+		queryPickUpCode.setCompanyKey(company);
+		List<PickUpCode> resultPickUpCodeList = pickUpCodeDao.findList(queryPickUpCode);
+		//前面已经做过检验保证是一个数据
+		PickUpCode pickUpCode = resultPickUpCodeList.get(0);
+		String codeValue = pickUpCode.getCodeValue();
+		//取货码自增
+		if(!isRefreshPickUpCode(pickUpCode)) {
+			//置空
+			codeValue = "0";
+		}
+		//自增
+		Integer codeValueInt = Integer.valueOf(codeValue);
+		codeValueInt++;
+		
+		
+		//更新数据取货码
+		pickUpCode.setCodeValue(codeValueInt.toString());
+		queryPickUpCode.setUpdateBy(user);
+		queryPickUpCode.setUpdateDate(new Date());
+		pickUpCodeDao.update(pickUpCode);
+		
+		String pickUpCodeValue = pickUpCode.getCode();
 		//默认保存数据
 		sysExpress.setId(IdGen.uuid());
 		sysExpress.setMsgState(queryMsgState(sysExpress));
@@ -318,19 +360,14 @@ public class WxService extends BaseService implements InitializingBean {
 		sysExpress.setUpdateBy(user);
 		sysExpress.setUpdateDate(new Date());
 		sysExpress.setEnterTime(today);
-		
-		/**
-		 * 自动生成取货码
-		 * 该公司当天最大的取货号，后续自动增加一个
-		 */
-		Integer pickUpCode = sysExpressDao.findMaxPickUp(company, today);
-		if(null == pickUpCode) {
-			pickUpCode = 0;
-		}
-		pickUpCode++;//自增一个
-		sysExpress.setPickUpCode(pickUpCode.toString());
+		sysExpress.setPickUpCode(pickUpCodeValue);//取货码
 		sysExpressDao.insert(sysExpress);
 		return sysExpress;
+	}
+	
+	//取货码是否要刷新
+	public boolean isRefreshPickUpCode(PickUpCode pickUpCode) {
+		return CasUtils.isSameDay(new Date(), pickUpCode.getUpdateDate());
 	}
 	
 	
@@ -1127,6 +1164,77 @@ public class WxService extends BaseService implements InitializingBean {
 		wxTemplateDatas.put("keyword3", keyword3);
 		wxTemplateDatas.put("keyword4", keyword4);
 		wxTemplateDatas.put("keyword5", keyword5);
+		wxTemplateDatas.put("remark", remark);
+		template.setData(wxTemplateDatas);
+		//获取Token
+    	WxAccessTokenManager wxAccessTokenManager = WxAccessTokenManager.getInstance();
+		String accessToken = wxAccessTokenManager.getAccessToken();
+		String url = String.format(WxGlobal.getTemplateMsgUrl(),accessToken);
+		String jsonString = JSONObject.fromObject(template).toString();
+		JSONObject jsonObject = WxUrlUtils.httpRequest(url,Global.POST_METHOD,jsonString); 
+		logger.info("msg is " + jsonObject);
+		int result = 0;
+        if (null != jsonObject) {  
+             if (0 != jsonObject.getInt("errcode")) {  
+                 result = jsonObject.getInt("errcode");  
+                 logger.error("错误 errcode:{} errmsg:{}", jsonObject.getInt("errcode"), jsonObject.getString("errmsg"));  
+             }  
+         }
+        logger.info("模板消息发送结果："+result);
+		logger.info("send msg end");
+		return null;
+	}
+	
+	/**
+	 * 审核通知
+	 * @param toUser 接收人
+	 * @param username 经办人
+	 * @return
+	 */
+	public String sendMessageCheck(String toUser,String username) {
+		logger.info("send msg start");
+		/*
+		 *	模板ID 为 DQjKDzP4EQqrA6r_abDDYJjyNZ9071tuDls2DeNrJZA
+		 *	内容：
+		 *		{{first.DATA}}
+				状态：{{keyword1.DATA}}
+				时间：{{keyword2.DATA}}
+				金额：{{keyword3.DATA}}
+				经办人：{{keyword4.DATA}}
+				{{remark.DATA}}
+		 */
+		
+		//first.DATA
+		WxTemplateData first = new WxTemplateData();
+		first.setColor(WxGlobal.getTemplateMsgColor_1());
+		first.setValue("审核通知");
+		//服务类型
+		WxTemplateData keyword1 = new WxTemplateData();
+		keyword1.setColor(WxGlobal.getTemplateMsgColor_1());
+		keyword1.setValue("提醒通知");
+		//审核原因
+		WxTemplateData keyword2 = new WxTemplateData();
+		keyword2.setColor(WxGlobal.getTemplateMsgColor_1());
+		keyword2.setValue("请携带身份证前往易度空间审核");
+		//服务时间
+		WxTemplateData keyword3 = new WxTemplateData();
+		keyword3.setColor(WxGlobal.getTemplateMsgColor_1());
+		keyword3.setValue(DateUtils.getDateTime());
+		WxTemplateData remark = new WxTemplateData();
+		String content="谢谢您的合作,详情请前往易度空间咨询";
+		remark.setColor(WxGlobal.getTemplateMsgColor_1());
+		remark.setValue(content);
+		
+		WxTemplate template = new WxTemplate();
+		template.setUrl(null);
+		template.setTouser(toUser);
+		template.setTopcolor(WxGlobal.getTemplateMsgColor_2());
+		template.setTemplate_id(WxGlobal.getTemplateMsg_3());
+		Map<String,WxTemplateData> wxTemplateDatas = new HashMap<String,WxTemplateData>();
+		wxTemplateDatas.put("first", first);
+		wxTemplateDatas.put("keyword1", keyword1);
+		wxTemplateDatas.put("keyword2", keyword2);
+		wxTemplateDatas.put("keyword3", keyword3);
 		wxTemplateDatas.put("remark", remark);
 		template.setData(wxTemplateDatas);
 		//获取Token

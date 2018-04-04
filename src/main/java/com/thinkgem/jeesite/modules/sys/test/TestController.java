@@ -1,4 +1,4 @@
-package com.thinkgem.jeesite.modules.sys.web;
+package com.thinkgem.jeesite.modules.sys.test;
 
 import java.io.File;
 import java.util.Iterator;
@@ -7,6 +7,7 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,6 +21,7 @@ import org.springframework.web.multipart.commons.CommonsMultipartResolver;
 import com.thinkgem.jeesite.common.config.Global;
 import com.thinkgem.jeesite.common.utils.BasePathUtils;
 import com.thinkgem.jeesite.common.web.BaseController;
+import com.thinkgem.jeesite.modules.sys.service.WxService;
 import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 
 /**
@@ -33,6 +35,24 @@ import com.thinkgem.jeesite.modules.sys.utils.DictUtils;
 @RequestMapping(value = "test")
 public class TestController extends BaseController {
 	
+	@Autowired
+	private WxService wxService;
+	
+	
+	@RequestMapping(value="/pickUpCodeRepeat",method=RequestMethod.GET)
+	public String pickUpCodeRepeat(HttpServletRequest request, HttpServletResponse response,Model model) {
+		try {
+			PickUpCodeThread1 thread1 = new PickUpCodeThread1(wxService);
+			PickUpCodeThread2 thread2 = new PickUpCodeThread2(wxService);
+			Thread t1 = new Thread(thread1);
+			Thread t2 = new Thread(thread2);
+			t1.start();
+			//t2.start();
+		}catch(Exception e) {
+			e.printStackTrace();
+		}
+		return "modules/wxp/test";
+	}
 	
 	/**
 	 * 测试使用(开发可删除)

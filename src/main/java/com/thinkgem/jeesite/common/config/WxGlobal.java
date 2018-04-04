@@ -81,6 +81,11 @@ public class WxGlobal {
 	public static String getTemplateMsg_2() {
 		return DictUtils.getDictValue("TEMPLATE_MSG_2", "systemControl", "");
 	}
+	
+	//微信模板
+	public static String getTemplateMsg_3() {
+		return DictUtils.getDictValue("TEMPLATE_MSG_3", "systemControl", "");
+	}
 	//微信模板颜色
 	public static String getTemplateMsgColor_1() {
 		return DictUtils.getDictValue("TEMPLATE_MSG_COLOR_1", "systemControl", "");
