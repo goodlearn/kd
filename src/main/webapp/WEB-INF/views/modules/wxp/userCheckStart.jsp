@@ -210,6 +210,13 @@
 				</div>
 			</form>
 
+			<div class="userUploadDesc">
+				为保证快递实名信息，请如实填写身份证号。身份证审核有两种方式
+				（1）填写信息提交后，请携带身份证前往易度空间进行人工审核
+				（2）上传身份证明图片，由管理人员统一进行审核（不需要携带身份证前往易度空间）
+				  请确保上传的个人证明均为有效证件，提交后我们将在3个工作日之内进行审核，并在公众号内通知审核结果，请耐心等待。
+			</div>
+
 			<div class="userIdImgUpload">
 				<div class="userIdImgCont" id="userIdImgPositive">
 					<img id = "ipLoadImg" src="${ctxStatic}/wx/wximages/defaultimage.jpg" alt="图片加载中...">
@@ -218,10 +225,6 @@
 			</div>
 
 			<div class="exampleImg">查看示例图片</div>
-
-			<div class="userUploadDesc">
-				请确保上传的个人证明均为有效证件，提交后我们将在3个工作日之内进行审核，并在公众号内通知审核结果，请耐心等待。
-			</div>
 
 			<div id = "userRegSubmitBtn" class="submitBtn userRegSubmitBtn">确认提交</div>
 			<div class="backBtn">点我返回</div>
@@ -418,11 +421,12 @@
 				return false;
 			}
 
-			var idcardImg = $("#ipLoadImg").attr("src");
+			 var idcardImg = "";
+			/*idcardImg = $("#ipLoadImg").attr("src");
 			if (idcardImg == null || idcardImg == undefined || idcardImg == '') {
 				rzAlert("操作提示","图片为空");
 				return false;
-			}
+			} */
 			
 			var msg = $("#msg").val();
 			var oldPhone = $("#oldPhone").val();

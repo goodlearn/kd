@@ -903,7 +903,7 @@ public class UtilsController extends BaseController {
 			return backJsonWithCode(errCode_13,ERR_NEW_PHONE_PATTERN);
 		}
 		
-		//上传图片不能为空
+		/*//上传图片不能为空
 		if(StringUtils.isEmpty(idcardImg)) {
 			return backJsonWithCode(errCode_1,ERR_UP_IMAGE_NULL);
 		}
@@ -912,7 +912,7 @@ public class UtilsController extends BaseController {
 		String imageDefaultPath = "/kd/static/wx/wximages/defaultimage.jpg";
 		if(imageDefaultPath.equals(idcardImg)) {
 			return backJsonWithCode(errCode_1,ERR_UP_IMAGE_NULL);
-		}
+		}*/
 		
 		//验证码缓存
 		String cacheKey = Global.PREFIX_MOBLIE_CODE + phone;
