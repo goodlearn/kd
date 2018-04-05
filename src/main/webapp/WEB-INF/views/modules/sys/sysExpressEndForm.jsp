@@ -117,7 +117,7 @@
 						${fns:getDictLabel(sysExpress.company,'expressCompany','其它')}
 					</td>
 					<td>
-						${sysExpress.pickUpCode}
+						${sysExpress.pickUpCodeShow}
 					</td>
 					<td>
 						${sysExpress.createBy.name}

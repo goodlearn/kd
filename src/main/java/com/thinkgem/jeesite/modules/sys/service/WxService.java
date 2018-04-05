@@ -347,8 +347,8 @@ public class WxService extends BaseService implements InitializingBean {
 		
 		//更新数据取货码
 		pickUpCode.setCodeValue(codeValueInt.toString());
-		queryPickUpCode.setUpdateBy(user);
-		queryPickUpCode.setUpdateDate(new Date());
+		pickUpCode.setUpdateBy(user);
+		pickUpCode.setUpdateDate(new Date());
 		pickUpCodeDao.update(pickUpCode);
 		
 		String pickUpCodeValue = pickUpCode.getCode();
