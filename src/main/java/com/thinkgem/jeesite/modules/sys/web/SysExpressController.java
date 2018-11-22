@@ -127,7 +127,7 @@ public class SysExpressController extends BaseController {
 		String searchValue = request.getParameter("searchValue");
 		sysExpress.setSearchUnEndValue(searchValue);
 		//如果是已经完结取货的不再查询
-		String state = DictUtils.getDictValue("已完结", "expressState", "0");
+		String state = DictUtils.getDictValue("已入库", "expressState", "0");
 		sysExpress.setState(state);
 		Page<SysExpress> page = sysExpressService.findUnEndPage(new Page<SysExpress>(request, response), sysExpress); 
 		model.addAttribute("page", page);
