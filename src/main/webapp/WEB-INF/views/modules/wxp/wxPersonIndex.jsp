@@ -44,7 +44,7 @@
 				</div>
 				<div class="userFun">
 					<p class="funIcon userFunColor4"></p>
-					<p class="funTxt">我要寄件</p>
+					<p class="funTxt">敬请期待</p>
 				</div>
 				<c:if test="${not empty isManager}">
 					<div class="userFun">

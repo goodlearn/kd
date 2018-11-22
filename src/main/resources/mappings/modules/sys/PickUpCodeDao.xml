@@ -23,7 +23,7 @@
 			<include refid="pickUpCodeColumns"/>
 		FROM pick_up_code a
 		<include refid="pickUpCodeJoins"/>
-		WHERE a.id = #{id}
+		WHERE a.id = #{id} AND a.del_flag = '0'
 	</select>
 	
 	<select id="findList" resultType="PickUpCode">
