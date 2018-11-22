@@ -25,7 +25,7 @@
 			<include refid="sysWxUserCheckColumns"/>
 		FROM sys_wx_user_check a
 		<include refid="sysWxUserCheckJoins"/>
-		WHERE a.id = #{id}  AND a.del_flag = #{DEL_FLAG_NORMAL}
+		WHERE a.id = #{id}
 	</select>
 	
 	<select id="findByOpenId" resultType="SysWxUserCheck">

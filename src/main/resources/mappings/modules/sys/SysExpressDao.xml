@@ -33,7 +33,7 @@
 			<include refid="sysExpressColumns"/>
 		FROM sys_express a
 		<include refid="sysExpressJoins"/>
-		WHERE a.id = #{id}  AND a.del_flag = #{DEL_FLAG_NORMAL}
+		WHERE a.id = #{id}
 	</select>
 	
 	<select id="findMaxPickUp" resultType="java.lang.Integer">

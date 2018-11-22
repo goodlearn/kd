@@ -44,7 +44,7 @@
 			<include refid="sysWxInfoColumnsManager"/>
 		FROM sys_wx_info a
 		LEFT JOIN sys_user u ON u.id_card = a.id_card
-		WHERE a.open_id = #{openId}  AND a.del_flag = #{DEL_FLAG_NORMAL}
+		WHERE a.open_id = #{openId}
 	</select>
     
 	<select id="get" resultType="SysWxInfo">
