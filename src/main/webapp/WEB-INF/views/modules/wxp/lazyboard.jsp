@@ -202,8 +202,8 @@
 			<a href="./index.html">快递首页</a>
 			<a href="./userhome.html">个人中心</a>
 			<a href="./delivery.html">送货上门</a>
-			<a href="./sendexpress.html">我要寄件</a>
-			<a href="./lazyboard.html">懒人排行</a>
+<!-- 			<a href="./sendexpress.html">我要寄件</a>
+ -->			<a href="./lazyboard.html">懒人排行</a>
 			<a href="./expassistant.html">快递助手</a>
 		</div>
 	</div>

@@ -44,7 +44,7 @@
 			<include refid="sysWxInfoColumnsManager"/>
 		FROM sys_wx_info a
 		LEFT JOIN sys_user u ON u.id_card = a.id_card
-		WHERE a.open_id = #{openId}
+		WHERE a.open_id = #{openId}  AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
     
 	<select id="get" resultType="SysWxInfo">
@@ -52,7 +52,7 @@
 			<include refid="sysWxInfoColumns"/>
 		FROM sys_wx_info a
 		<include refid="sysWxInfoJoins"/>
-		WHERE a.id = #{id}
+		WHERE a.id = #{id}  AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findByIdCard" resultType="SysWxInfo">
@@ -60,7 +60,7 @@
 			<include refid="sysWxInfoColumns"/>
 		FROM sys_wx_info a
 		<include refid="sysWxInfoJoins"/>
-		WHERE a.id_card = #{idCard}
+		WHERE a.id_card = #{idCard}  AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	
@@ -69,7 +69,7 @@
 			<include refid="sysWxInfoColumns"/>
 		FROM sys_wx_info a
 		<include refid="sysWxInfoJoins"/>
-		WHERE a.open_id = #{openId}
+		WHERE a.open_id = #{openId} AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findList" resultType="SysWxInfo">

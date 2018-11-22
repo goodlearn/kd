@@ -40,7 +40,7 @@
 				</div>
 				<div class="userFun">
 					<p class="funIcon userFunColor3"></p>
-					<p class="funTxt">送货上门</p>
+					<p class="funTxt">取货二维码</p>
 				</div>
 				<div class="userFun">
 					<p class="funIcon userFunColor4"></p>
@@ -70,15 +70,11 @@
 					window.location.href= pageContextVal+"/ul/userHome"; 
 					break;
 				case(1): 
-					window.location.href= pageContextVal+"/ul/reqLazyboard"; break;; 
+					window.location.href= pageContextVal+"/ul/reqLazyboard"; 
 					break;
-				case(2): rzAlert("温馨提示","新功能正在开发中，敬请期待！"); break;
+				case(2): window.location.href= pageContextVal+"/ul/reqPersonQRcode"; break;
 				case(3): rzAlert("温馨提示","新功能正在开发中，敬请期待！"); break;
 				case(4): window.location.href= pageContextVal+"/ul/reqExpressAssist"; break;
-				//快递分析
-				//送货上门
-				//我要寄件
-				//快递助手
 			}
 		});
 

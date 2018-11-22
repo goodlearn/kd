@@ -25,7 +25,7 @@
 			<include refid="sysWxUserCheckColumns"/>
 		FROM sys_wx_user_check a
 		<include refid="sysWxUserCheckJoins"/>
-		WHERE a.id = #{id} 
+		WHERE a.id = #{id}  AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findByOpenId" resultType="SysWxUserCheck">
@@ -33,7 +33,7 @@
 			<include refid="sysWxUserCheckColumns"/>
 		FROM sys_wx_user_check a
 		<include refid="sysWxUserCheckJoins"/>
-		WHERE a.open_id = #{openId}
+		WHERE a.open_id = #{openId} AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	

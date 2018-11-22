@@ -24,7 +24,7 @@
 			<include refid="sysWxUserColumns"/>
 		FROM sys_wx_user a
 		<include refid="sysWxUserJoins"/>
-		WHERE a.id = #{id}
+		WHERE a.id = #{id} AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findByIdCard" resultType="SysWxUser">
@@ -32,7 +32,7 @@
 			<include refid="sysWxUserColumns"/>
 		FROM sys_wx_user a
 		<include refid="sysWxUserJoins"/>
-		WHERE a.id_card = #{idCard}
+		WHERE a.id_card = #{idCard} AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findByPhone" resultType="SysWxUser">
@@ -40,7 +40,7 @@
 			<include refid="sysWxUserColumns"/>
 		FROM sys_wx_user a
 		<include refid="sysWxUserJoins"/>
-		WHERE a.phone = #{phone}
+		WHERE a.phone = #{phone} AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findByIdCardAndPhone" resultType="SysWxUser">

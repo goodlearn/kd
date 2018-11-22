@@ -33,7 +33,7 @@
 			<include refid="sysExpressColumns"/>
 		FROM sys_express a
 		<include refid="sysExpressJoins"/>
-		WHERE a.id = #{id}
+		WHERE a.id = #{id}  AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findMaxPickUp" resultType="java.lang.Integer">
@@ -48,7 +48,7 @@
 			<include refid="sysExpressColumns"/>
 		FROM sys_express a
 		<include refid="sysExpressJoins"/>
-		WHERE wxu.id_card = #{idCard} AND a.state = '0' 
+		WHERE wxu.id_card = #{idCard} AND a.state = '0'   AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findByExpressId" resultType="SysExpress">
@@ -56,7 +56,7 @@
 			<include refid="sysExpressColumns"/>
 		FROM sys_express a
 		<include refid="sysExpressJoins"/>
-		WHERE a.express_id = #{expressId}
+		WHERE a.express_id = #{expressId}  AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findByIdCard" resultType="SysExpress">
@@ -64,7 +64,7 @@
 			<include refid="sysExpressColumns"/>
 		FROM sys_express a
 		<include refid="sysExpressJoins"/>
-		WHERE wxu.id_card = #{idCard}
+		WHERE wxu.id_card = #{idCard}  AND a.del_flag = #{DEL_FLAG_NORMAL}
 	</select>
 	
 	<select id="findList" resultType="SysExpress">
@@ -112,7 +112,7 @@
 				 )
 			</if>
 			<if test="state != null and state != ''">
-				AND a.state != #{state}
+				AND a.state = #{state}
 			</if>
 			AND a.del_flag = #{DEL_FLAG_NORMAL}
 		</where>
